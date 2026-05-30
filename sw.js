@@ -1,10 +1,5 @@
 const CACHE_NAME = "cricket-scoreboard-v1";
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "https://cdn-icons-png.flaticon.com/512/5351/5351493.png",
-];
+const ASSETS = ["./", "./index.html", "./manifest.json", "./app-logo.png"];
 
 // Install Service Worker and cache all vital assets
 self.addEventListener("install", (event) => {
