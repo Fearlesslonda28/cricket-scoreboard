@@ -3,10 +3,10 @@
   "name": "Islington Academic Cricket Scoreboard",
   "icons": [
     {
-      "src": "./app-logo.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/5351/5351493.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ],
   "start_url": "./index.html",
