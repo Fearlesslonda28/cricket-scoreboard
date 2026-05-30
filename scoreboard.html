@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Islington Academic Team - Cricket Scoreboard</title>
+  <style>
+    :root {
+      --bg-dark: #121212;
+      --panel-bg: #1e1e1e;
+      --text-main: #ffffff;
+      --accent-green: #39ff14;
+      --accent-cyan: #00ffff;
+      --border-color: #333333;
+      --input-bg: #2a2a2a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    /* --- RESPONSIVE MEDIA BREAKPOINT (TABLET/DESKTOP) --- */
+    @media (min-width: 900px) {
+      body {
+        padding: 20px;
+      }
+
+      .container {
+        grid-template-columns: 7fr 5fr;
+      }
+    }
+
+    /* --- STADIUM LED DISPLAY --- */
+    .scoreboard-panel {
+      background-color: var(--panel-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .main-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .display-box {
+      text-align: center;
+      flex: 1;
+      min-width: 70px;
+    }
+
+    .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .label.green {
+      color: var(--accent-green);
+    }
+
+    .label.cyan {
+      color: var(--accent-cyan);
+    }
+
+    .huge-number {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: var(--text-main);
+    }
+
+    .slash {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      color: var(--border-color);
+      margin: 0 5px;
+    }
+
+    .grid-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      text-align: center;
+    }
+
+    @media (min-width: 480px) {
+      .grid-stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .stat-val {
+      font-size: 1.6rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: var(--accent-cyan);
+    }
+
+    .status-banner {
+      background-color: rgba(0, 255, 255, 0.05);
+      border: 1px dashed var(--accent-cyan);
+      color: var(--accent-cyan);
+      text-align: center;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    /* --- CONTROL DECK PANEL --- */
+    .control-panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      color: var(--accent-green);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .setup-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+
+    input,
+    select {
+      background-color: var(--input-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 1rem;
+      outline: none;
+      width: 100%;
+    }
+
+    input:disabled {
+      color: #555;
+      background-color: #151515;
+      cursor: not-allowed;
+      border-color: #222;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .ball-entry-zone {
+      background: #181818;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .btn {
+      background-color: var(--accent-green);
+      color: #000;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: #ff9900;
+      border: 1px solid #ff9900;
+      padding: 10px;
+      font-size: 0.85rem;
+    }
+
+    .btn-secondary:hover {
+      background-color: #ff9900;
+      color: #000;
+    }
+
+    .btn-danger {
+      background-color: transparent;
+      color: #ff4444;
+      border: 1px solid #ff4444;
+      padding: 10px;
+      font-size: 0.85rem;
+    }
+
+    .btn-danger:hover {
+      background-color: #ff4444;
+      color: #fff;
+    }
+
+    /* --- LOG HISTORY TABLE --- */
+    .history-panel {
+      grid-column: 1 / -1;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      min-width: 500px;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.9rem;
+    }
+
+    th {
+      color: #aaa;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+
+    .badge-wicket {
+      color: #ff4444;
+      font-weight: bold;
+    }
+
+    .badge-extra {
+      color: var(--accent-cyan);
+    }
+
+    /* --- UNIFIED DIALOG MODAL LAYOUT --- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease-in-out;
+      padding: 15px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-box {
+      background: var(--panel-bg);
+      border: 2px solid var(--border-color);
+      padding: 25px;
+      border-radius: 8px;
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      transform: scale(0.9);
+      transition: transform 0.25s ease-in-out;
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-box h3 {
+      color: var(--accent-green);
+      margin-bottom: 12px;
+      font-size: 1.3rem;
+      text-transform: uppercase;
+    }
+
+    .modal-box p {
+      font-size: 0.95rem;
+      color: #ccc;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .modal-btns {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .modal-btns .btn {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      flex: 1;
+      min-width: 120px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2
+    style="margin-bottom: 20px; font-weight: 400; letter-spacing: 1px; text-align: center; font-size: clamp(1.2rem, 4vw, 1.6rem);">
+    CRICKET MATCH LOG ENGINE</h2>
+
+  <div class="container">
+
+    <div class="scoreboard-panel">
+      <div class="main-row">
+        <div class="display-box">
+          <div class="label green">Total Runs</div>
+          <div class="huge-number" id="dspRuns">0</div>
+        </div>
+        <div class="slash">/</div>
+        <div class="display-box">
+          <div class="label green">Wickets</div>
+          <div class="huge-number" id="dspWickets">0</div>
+        </div>
+        <div class="display-box" style="flex: 1.2;">
+          <div class="label cyan">Overs</div>
+          <div class="huge-number" id="dspOvers" style="color: var(--accent-cyan);">0.0</div>
+        </div>
+      </div>
+
+      <div class="grid-stats">
+        <div class="display-box">
+          <div class="label cyan" id="targetLabel">1st Inn Score</div>
+          <div class="stat-val" id="dspTarget">-</div>
+        </div>
+        <div class="display-box">
+          <div class="label cyan">Extras</div>
+          <div class="stat-val" id="dspExtras">0</div>
+        </div>
+        <div class="display-box">
+          <div class="label cyan">CRR</div>
+          <div class="stat-val" id="dspCRR">0.00</div>
+        </div>
+        <div class="display-box">
+          <div class="label cyan">RRR</div>
+          <div class="stat-val" id="dspRRR">-</div>
+        </div>
+      </div>
+
+      <div class="status-banner" id="dspSummary">
+        1st Innings - Set the Target
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="panel-title">Match Configuration</div>
+      <div class="setup-row">
+        <div class="input-group">
+          <label for="matchOvers">Match Overs</label>
+          <select id="matchOvers">
+            <option value="5">5 Overs</option>
+            <option value="8">8 Overs</option>
+            <option value="10">10 Overs</option>
+            <option value="20" selected>20 Overs (T20)</option>
+            <option value="50">50 Overs (ODI)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="targetScore">Target Score</label>
+          <input type="number" id="targetScore" value="0" disabled placeholder="Automated Target">
+        </div>
+      </div>
+
+      <div class="panel-title">Ball-by-Ball Logger <span id="logInningsBadge"
+          style="float: right; color: var(--accent-cyan); font-size: 0.75rem; border: 1px solid var(--accent-cyan); padding: 2px 6px; border-radius: 3px;">1st
+          Innings Log</span></div>
+      <div class="ball-entry-zone">
+        <div class="setup-row">
+          <div class="input-group">
+            <label for="ballRuns">Runs From Bat</label>
+            <select id="ballRuns">
+              <option value="0">0 Runs (Dot)</option>
+              <option value="1">1 Run</option>
+              <option value="2">2 Runs</option>
+              <option value="3">3 Runs</option>
+              <option value="4">4 Runs (Boundary)</option>
+              <option value="6">6 Runs (Six)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="ballEvent">Delivery Type</label>
+            <select id="ballEvent">
+              <option value="Normal">Normal Ball</option>
+              <option value="Wide">Wide</option>
+              <option value="No Ball">No Ball</option>
+              <option value="Bye">Bye</option>
+              <option value="Leg Bye">Leg Bye</option>
+              <option value="Wicket">Wicket Dismissal</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn" id="btnSubmitBall">Submit Delivery</button>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-secondary" id="btnEndFirstInnings">End 1st Innings</button>
+        <button class="btn btn-danger" id="btnReset">Reset Match</button>
+      </div>
+    </div>
+
+    <div class="history-panel">
+      <div class="panel-title" style="margin-bottom: 10px; font-size: 0.9rem;">Chronological Ball Diary</div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Absolute Delivery</th>
+              <th>Legal Over Count</th>
+              <th>Bat Runs</th>
+              <th>Event Type</th>
+              <th>Total Yield</th>
+            </tr>
+          </thead>
+          <tbody id="logTableBody">
+            <tr>
+              <td colspan="5" style="text-align: center; color: #666; padding: 20px;">No balls bowled yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="modal-overlay" id="appModal">
+    <div class="modal-box">
+      <h3 id="modalHeading">Heading Placeholder</h3>
+      <p id="modalMessage">Message body description details placeholder text.</p>
+      <div class="modal-btns" id="modalButtonsContainer">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let ballHistory = [];
+    let firstInningsFinalScore = 0;
+    let isInningsTwoActive = false;
+
+    // DOM Cache References
+    const matchOversInput = document.getElementById('matchOvers');
+    const targetScoreInput = document.getElementById('targetScore');
+    const ballRunsInput = document.getElementById('ballRuns');
+    const ballEventInput = document.getElementById('ballEvent');
+    const btnSubmitBall = document.getElementById('btnSubmitBall');
+    const btnReset = document.getElementById('btnReset');
+    const btnEndFirstInnings = document.getElementById('btnEndFirstInnings');
+    const logTableBody = document.getElementById('logTableBody');
+    const logInningsBadge = document.getElementById('logInningsBadge');
+    const targetLabel = document.getElementById('targetLabel');
+
+    // Scoreboard UI Outputs
+    const dspRuns = document.getElementById('dspRuns');
+    const dspWickets = document.getElementById('dspWickets');
+    const dspOvers = document.getElementById('dspOvers');
+    const dspTarget = document.getElementById('dspTarget');
+    const dspExtras = document.getElementById('dspExtras');
+    const dspCRR = document.getElementById('dspCRR');
+    const dspRRR = document.getElementById('dspRRR');
+    const dspSummary = document.getElementById('dspSummary');
+
+    // Modal Component Elements
+    const appModal = document.getElementById('appModal');
+    const modalHeading = document.getElementById('modalHeading');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalButtonsContainer = document.getElementById('modalButtonsContainer');
+
+    function openModal(heading, message, actionButtons) {
+      modalHeading.textContent = heading;
+      modalMessage.textContent = message;
+      modalButtonsContainer.innerHTML = '';
+
+      actionButtons.forEach(btnConfig => {
+        const button = document.createElement('button');
+        button.textContent = btnConfig.text;
+        button.className = btnConfig.className || 'btn';
+        button.addEventListener('click', () => {
+          appModal.classList.remove('active');
+          if (btnConfig.action) btnConfig.action();
+        });
+        modalButtonsContainer.appendChild(button);
+      });
+      appModal.classList.add('active');
+    }
+
+    function calculateCurrentRuns() {
+      let runs = 0;
+      ballHistory.forEach(ball => {
+        runs += ball.batRuns;
+        if (ball.eventType !== 'Normal' && ['Wide', 'No Ball', 'Bye', 'Leg Bye'].includes(ball.eventType)) runs += 1;
+      });
+      return runs;
+    }
+
+    function recalculateScoreboard() {
+      const maxOvers = parseInt(matchOversInput.value) || 20;
+
+      let runs = 0;
+      let wickets = 0;
+      let extrasCount = 0;
+      let legalBalls = 0;
+
+      ballHistory.forEach(ball => {
+        runs += ball.batRuns;
+        if (ball.eventType === 'Wicket') wickets++;
+        if (ball.eventType !== 'Normal') {
+          extrasCount++;
+          if (['Wide', 'No Ball', 'Bye', 'Leg Bye'].includes(ball.eventType)) runs += 1;
+        }
+        if (ball.eventType !== 'Wide' && ball.eventType !== 'No Ball') legalBalls++;
+      });
+
+      const displayOversWhole = Math.floor(legalBalls / 6);
+      const displayOversRemainder = legalBalls % 6;
+      const decimalOversExpression = displayOversWhole + (displayOversRemainder / 6);
+
+      const crr = decimalOversExpression > 0 ? (runs / decimalOversExpression) : 0;
+      const totalBallsInMatch = maxOvers * 6;
+      const remainingBalls = Math.max(0, totalBallsInMatch - legalBalls);
+      const remainingOversExpression = remainingBalls / 6;
+
+      if (isInningsTwoActive) {
+        const target = firstInningsFinalScore + 1;
+        const runsNeeded = target - runs;
+        let rrr = remainingOversExpression > 0 ? (runsNeeded / remainingOversExpression) : 0;
+        if (runsNeeded <= 0) rrr = 0;
+
+        logInningsBadge.textContent = "2nd Innings Log";
+        logInningsBadge.style.color = "var(--accent-green)";
+        logInningsBadge.style.borderColor = "var(--accent-green)";
+        targetLabel.textContent = "Target";
+        dspTarget.textContent = target;
+        dspRRR.textContent = (rrr > 0 && runs < target && remainingBalls > 0) ? rrr.toFixed(2) : '0.00';
+        btnEndFirstInnings.style.display = 'none';
+        matchOversInput.disabled = true;
+
+        if (runsNeeded <= 0) {
+          dspSummary.textContent = "Target Achieved! 2nd Innings Over.";
+          openModal("Match Completed!", `Chasing team reached the target score successfully by hitting ${runs} runs!`, [{ text: "Close Display", className: "btn" }]);
+        } else if (remainingBalls <= 0 || wickets >= 10) {
+          dspSummary.textContent = `Match Over! Defeated by ${runsNeeded - 1} runs.`;
+          openModal("Innings Finished", `Innings completed. Bowling team successfully defended their total. Chasing team fell short by ${runsNeeded - 1} runs.`, [{ text: "Close Display", className: "btn" }]);
+        } else {
+          dspSummary.textContent = `Need ${runsNeeded} runs off ${remainingBalls} balls remaining`;
+        }
+      } else {
+        logInningsBadge.textContent = "1st Innings Log";
+        logInningsBadge.style.color = "var(--accent-cyan)";
+        logInningsBadge.style.borderColor = "var(--accent-cyan)";
+        targetLabel.textContent = "1st Inn Score";
+        dspTarget.textContent = firstInningsFinalScore > 0 ? firstInningsFinalScore : '-';
+        dspRRR.textContent = '-';
+        btnEndFirstInnings.style.display = 'inline-block';
+        matchOversInput.disabled = false;
+
+        dspSummary.textContent = `1st Innings - Projecting Finishes at Pace: ${Math.round(crr * maxOvers)} Runs`;
+
+        // Auto-triggering check engine constraints thresholds
+        if (legalBalls >= totalBallsInMatch || wickets >= 10) {
+          setTimeout(() => {
+            openModal(
+              "1st Innings Concluded Automatically!",
+              `All match overs delivered or 10 wickets taken! First innings completes at ${calculateCurrentRuns()} runs. Ready to switch over to the 2nd Innings?`,
+              [
+                { text: "Yes", className: "btn", action: executeTransitionToSecondInnings },
+                { text: "Cancel", className: "btn btn-danger" }
+              ]
+            );
+          }, 400);
+        }
+      }
+
+      dspRuns.textContent = runs;
+      dspWickets.textContent = wickets;
+      dspOvers.textContent = `${displayOversWhole}.${displayOversRemainder}`;
+      dspExtras.textContent = extrasCount;
+      dspCRR.textContent = crr.toFixed(2);
+
+      renderLogTable();
+    }
+
+    function renderLogTable() {
+      if (ballHistory.length === 0) {
+        logTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #666; padding: 20px;">No balls bowled yet.</td></tr>`;
+        return;
+      }
+
+      let htmlBuffer = '';
+      let rollingLegalBalls = 0;
+
+      ballHistory.forEach((ball, i) => {
+        let isLegal = ball.eventType !== 'Wide' && ball.eventType !== 'No Ball';
+        if (isLegal) rollingLegalBalls++;
+
+        let oWhole = Math.floor(rollingLegalBalls / 6);
+        let oRem = rollingLegalBalls % 6;
+
+        let eventBadge = ball.eventType === 'Wicket' ? `<span class="badge-wicket">WICKET</span>` :
+          ball.eventType !== 'Normal' ? `<span class="badge-extra">${ball.eventType}</span>` : 'Normal';
+
+        let penaltyYield = (ball.eventType !== 'Normal') ? 1 : 0;
+        let totalBallYield = ball.batRuns + penaltyYield;
+
+        htmlBuffer = `
+                    <tr>
+                        <td># ${i + 1}</td>
+                        <td>${isLegal ? `${oWhole}.${oRem}` : 'Illegal (Over Frozen)'}</td>
+                        <td>${ball.batRuns}</td>
+                        <td>${eventBadge}</td>
+                        <td><strong>${totalBallYield} Runs</strong></td>
+                    </tr>
+                ` + htmlBuffer;
+      });
+
+      logTableBody.innerHTML = htmlBuffer;
+    }
+
+    function executeTransitionToSecondInnings() {
+      firstInningsFinalScore = calculateCurrentRuns();
+      targetScoreInput.value = firstInningsFinalScore + 1;
+
+      ballHistory = [];
+      isInningsTwoActive = true;
+      recalculateScoreboard();
+    }
+
+    // Action Submissions Processing
+    btnSubmitBall.addEventListener('click', () => {
+      if (isInningsTwoActive && dspSummary.textContent.includes("Over")) {
+        openModal("Match Completed", "This match has already completed! Reset to score a new match.", [{ text: "OK", className: "btn" }]);
+        return;
+      }
+
+      ballHistory.push({
+        batRuns: parseInt(ballRunsInput.value),
+        eventType: ballEventInput.value
+      });
+
+      ballRunsInput.value = "0";
+      ballEventInput.value = "Normal";
+      recalculateScoreboard();
+    });
+
+    btnEndFirstInnings.addEventListener('click', () => {
+      openModal(
+        "Manual End of First Innings?",
+        `Are you sure you want to end the 1st innings now? Current total score is ${calculateCurrentRuns()} runs.`,
+        [
+          { text: "Yes", className: "btn", action: executeTransitionToSecondInnings },
+          { text: "Cancel", className: "btn btn-danger" }
+        ]
+      );
+    });
+
+    btnReset.addEventListener('click', () => {
+      openModal(
+        "Reset Whole Match?",
+        "Are you absolutely sure you want to wipe out all entries, logs, and score totals? This cannot be undone.",
+        [
+          {
+            text: "Yes, Reset Everything",
+            className: "btn btn-danger",
+            action: () => {
+              ballHistory = [];
+              firstInningsFinalScore = 0;
+              isInningsTwoActive = false;
+              targetScoreInput.value = "0";
+              recalculateScoreboard();
+            }
+          },
+          { text: "Cancel", className: "btn" }
+        ]
+      );
+    });
+  </script>
+</body>
+
+</html>
