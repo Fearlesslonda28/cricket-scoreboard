@@ -1,4 +1,4 @@
-const CACHE_NAME = "cricket-scoreboard-v1";
+const CACHE_NAME = "cricket-scoreboard-v2";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./app-logo.png"];
 
 // Install Service Worker and cache all vital assets
